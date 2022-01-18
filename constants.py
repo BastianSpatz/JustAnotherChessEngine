@@ -1,17 +1,51 @@
 from enum import IntEnum
 import numpy as np
 
-EMPTY = np.uint64(0)
-BIT = np.uint64(1)
-UNIVERSE = np.uint64(0xFFFFFFFFFFFFFFFF)
+
+BOARD_LENGTH = 8
+BOARD_SQUARES = BOARD_LENGTH**2
+
+EMPTY = np.ulonglong(0)
+BIT = np.ulonglong(1)
+UNIVERSE = np.ulonglong(0xFFFFFFFFFFFFFFFF)
+
+STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
+SQUARES = [
+    A1, B1, C1, D1, E1, F1, G1, H1,
+    A2, B2, C2, D2, E2, F2, G2, H2,
+    A3, B3, C3, D3, E3, F3, G3, H3,
+    A4, B4, C4, D4, E4, F4, G4, H4,
+    A5, B5, C5, D5, E5, F5, G5, H5,
+    A6, B6, C6, D6, E6, F6, G6, H6,
+    A7, B7, C7, D7, E7, F7, G7, H7,
+    A8, B8, C8, D8, E8, F8, G8, H8,
+] = range(BOARD_SQUARES)
+
+BB_SQUARES = [
+    BB_A1, BB_B1, BB_C1, BB_D1, BB_E1, BB_F1, BB_G1, BB_H1,
+    BB_A2, BB_B2, BB_C2, BB_D2, BB_E2, BB_F2, BB_G2, BB_H2,
+    BB_A3, BB_B3, BB_C3, BB_D3, BB_E3, BB_F3, BB_G3, BB_H3,
+    BB_A4, BB_B4, BB_C4, BB_D4, BB_E4, BB_F4, BB_G4, BB_H4,
+    BB_A5, BB_B5, BB_C5, BB_D5, BB_E5, BB_F5, BB_G5, BB_H5,
+    BB_A6, BB_B6, BB_C6, BB_D6, BB_E6, BB_F6, BB_G6, BB_H6,
+    BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7,
+    BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8,
+] = [1 << sq for sq in SQUARES]
+
+def square_mirror(square):
+    """Mirrors the square vertically."""
+    return square ^ 0x38
+    
+SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
 
 RANKS = np.array(
     [0x00000000000000FF << 8 * i for i in range(8)],
-    dtype=np.uint64)
+    dtype=np.ulonglong)
 
 FILES = np.array(
     [0x0101010101010101 << i for i in range(8)],
-    dtype=np.uint64)
+    dtype=np.ulonglong)
 
 class Color(IntEnum):
     WHITE=0
@@ -76,6 +110,39 @@ class Piece(IntEnum):
         else:
             return piece, Color.BLACK
 
+    def __to_symbol__(self, color):
+        if self == Piece.PAWN:
+            if color == Color.WHITE:
+                return "P"
+            else:
+                return "p"
+        elif self == Piece.KNIGHT:
+            if color == Color.WHITE:
+                return "N"
+            else:
+                return "n"
+        elif self == Piece.BISHOP:
+            if color == Color.WHITE:
+                return "B"
+            else:
+                return "b"
+        elif self == Piece.ROOK:
+            if color == Color.WHITE:
+                return "R"
+            else:
+                return "r"
+        elif self == Piece.QUEEN:
+            if color == Color.WHITE:
+                return "Q"
+            else:
+                return "q"
+        else:
+            if color == Color.WHITE:
+                return "K"
+            else:
+                return "k"
+
+
 PIECE_SYMBOLS = ["P", "R", "N", "B", "Q", "K", "p", "r", "n", "b", "q", "k"]
 
 UNICODE_PIECE_SYMBOLS = {
@@ -88,77 +155,77 @@ UNICODE_PIECE_SYMBOLS = {
 }
 
 class Square:
-    A1 = np.uint64(0)
-    B1 = np.uint64(1)
-    C1 = np.uint64(2)
-    D1 = np.uint64(3)
-    E1 = np.uint64(4)
-    F1 = np.uint64(5)
-    G1 = np.uint64(6)
-    H1 = np.uint64(7)
+    A1 = np.ulonglong(0)
+    B1 = np.ulonglong(1)
+    C1 = np.ulonglong(2)
+    D1 = np.ulonglong(3)
+    E1 = np.ulonglong(4)
+    F1 = np.ulonglong(5)
+    G1 = np.ulonglong(6)
+    H1 = np.ulonglong(7)
 
-    A2 = np.uint64(8)
-    B2 = np.uint64(9)
-    C2 = np.uint64(10)
-    D2 = np.uint64(11)
-    E2 = np.uint64(12)
-    F2 = np.uint64(13)
-    G2 = np.uint64(14)
-    H2 = np.uint64(15)
+    A2 = np.ulonglong(8)
+    B2 = np.ulonglong(9)
+    C2 = np.ulonglong(10)
+    D2 = np.ulonglong(11)
+    E2 = np.ulonglong(12)
+    F2 = np.ulonglong(13)
+    G2 = np.ulonglong(14)
+    H2 = np.ulonglong(15)
 
-    A3 = np.uint64(16)
-    B3 = np.uint64(17)
-    C3 = np.uint64(18)
-    D3 = np.uint64(19)
-    E3 = np.uint64(20)
-    F3 = np.uint64(21)
-    G3 = np.uint64(22)
-    H3 = np.uint64(23)
+    A3 = np.ulonglong(16)
+    B3 = np.ulonglong(17)
+    C3 = np.ulonglong(18)
+    D3 = np.ulonglong(19)
+    E3 = np.ulonglong(20)
+    F3 = np.ulonglong(21)
+    G3 = np.ulonglong(22)
+    H3 = np.ulonglong(23)
 
-    A4 = np.uint64(24)
-    B4 = np.uint64(25)
-    C4 = np.uint64(26)
-    D4 = np.uint64(27)
-    E4 = np.uint64(28)
-    F4 = np.uint64(29)
-    G4 = np.uint64(30)
-    H4 = np.uint64(31)
+    A4 = np.ulonglong(24)
+    B4 = np.ulonglong(25)
+    C4 = np.ulonglong(26)
+    D4 = np.ulonglong(27)
+    E4 = np.ulonglong(28)
+    F4 = np.ulonglong(29)
+    G4 = np.ulonglong(30)
+    H4 = np.ulonglong(31)
 
-    A5 = np.uint64(32)
-    B5 = np.uint64(33)
-    C5 = np.uint64(34)
-    D5 = np.uint64(35)
-    E5 = np.uint64(36)
-    F5 = np.uint64(37)
-    G5 = np.uint64(38)
-    H5 = np.uint64(39)
+    A5 = np.ulonglong(32)
+    B5 = np.ulonglong(33)
+    C5 = np.ulonglong(34)
+    D5 = np.ulonglong(35)
+    E5 = np.ulonglong(36)
+    F5 = np.ulonglong(37)
+    G5 = np.ulonglong(38)
+    H5 = np.ulonglong(39)
 
-    A6 = np.uint64(40)
-    B6 = np.uint64(41)
-    C6 = np.uint64(42)
-    D6 = np.uint64(43)
-    E6 = np.uint64(44)
-    F6 = np.uint64(45)
-    G6 = np.uint64(46)
-    H6 = np.uint64(47)
+    A6 = np.ulonglong(40)
+    B6 = np.ulonglong(41)
+    C6 = np.ulonglong(42)
+    D6 = np.ulonglong(43)
+    E6 = np.ulonglong(44)
+    F6 = np.ulonglong(45)
+    G6 = np.ulonglong(46)
+    H6 = np.ulonglong(47)
 
-    A7 = np.uint64(48)
-    B7 = np.uint64(49)
-    C7 = np.uint64(50)
-    D7 = np.uint64(51)
-    E7 = np.uint64(52)
-    F7 = np.uint64(53)
-    G7 = np.uint64(54)
-    H7 = np.uint64(55)
+    A7 = np.ulonglong(48)
+    B7 = np.ulonglong(49)
+    C7 = np.ulonglong(50)
+    D7 = np.ulonglong(51)
+    E7 = np.ulonglong(52)
+    F7 = np.ulonglong(53)
+    G7 = np.ulonglong(54)
+    H7 = np.ulonglong(55)
 
-    A8 = np.uint64(56)
-    B8 = np.uint64(57)
-    C8 = np.uint64(58)
-    D8 = np.uint64(59)
-    E8 = np.uint64(60)
-    F8 = np.uint64(61)
-    G8 = np.uint64(62)
-    H8 = np.uint64(63)
+    A8 = np.ulonglong(56)
+    B8 = np.ulonglong(57)
+    C8 = np.ulonglong(58)
+    D8 = np.ulonglong(59)
+    E8 = np.ulonglong(60)
+    F8 = np.ulonglong(61)
+    G8 = np.ulonglong(62)
+    H8 = np.ulonglong(63)
 
 
 square_to_coordinates = [
@@ -206,14 +273,14 @@ class File:
     G = [6, 14, 22, 30, 38, 46, 54, 62]
     H = [7, 15, 23, 31, 39, 47, 55, 63]
 
-    file_A = np.uint64(0x0101010101010101)
-    file_B = np.uint64(0x0202020202020202)
-    file_C = np.uint64(0x0404040404040404)
-    file_D = np.uint64(0x0808080808080808)
-    file_E = np.uint64(0x1010101010101010)
-    file_F = np.uint64(0x2020202020202020)
-    file_G = np.uint64(0x4040404040404040)
-    file_H = np.uint64(0x8080808080808080)
+    file_A = np.ulonglong(0x0101010101010101)
+    file_B = np.ulonglong(0x0202020202020202)
+    file_C = np.ulonglong(0x0404040404040404)
+    file_D = np.ulonglong(0x0808080808080808)
+    file_E = np.ulonglong(0x1010101010101010)
+    file_F = np.ulonglong(0x2020202020202020)
+    file_G = np.ulonglong(0x4040404040404040)
+    file_H = np.ulonglong(0x8080808080808080)
 
 
 class Rank:
@@ -226,12 +293,12 @@ class Rank:
     x7 = [48, 49, 50, 51, 52, 53, 54, 55]
     x8 = [56, 57, 58, 59, 60, 61, 62, 63]
     
-    rank_1 = np.uint64(0x00000000000000FF)
-    rank_2 = np.uint64(0x000000000000FF00)
-    rank_3 = np.uint64(0x0000000000FF0000)
-    rank_4 = np.uint64(0x00000000FF000000)
-    rank_5 = np.uint64(0x000000FF00000000)
-    rank_6 = np.uint64(0x0000FF0000000000)
-    rank_7 = np.uint64(0x00FF000000000000)
-    rank_8 = np.uint64(0xFF00000000000000)
+    rank_1 = np.ulonglong(0x00000000000000FF)
+    rank_2 = np.ulonglong(0x000000000000FF00)
+    rank_3 = np.ulonglong(0x0000000000FF0000)
+    rank_4 = np.ulonglong(0x00000000FF000000)
+    rank_5 = np.ulonglong(0x000000FF00000000)
+    rank_6 = np.ulonglong(0x0000FF0000000000)
+    rank_7 = np.ulonglong(0x00FF000000000000)
+    rank_8 = np.ulonglong(0xFF00000000000000)
 

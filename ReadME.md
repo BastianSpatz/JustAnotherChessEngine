@@ -9,8 +9,11 @@ This is a bitboard based Chess Engine using only [Numpy](https://github.com/nump
 * Move generation using magic bitboards
 
 
-## Examples
+#RoadMap
 
+* [x] Move look up table for Sliders and Leapers
+* [ ] Build Board and BoardState
+* [ ] 
 
 ## Usage
 

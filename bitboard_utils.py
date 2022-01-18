@@ -13,9 +13,6 @@ big-endian rank-file mapping:
 56 57 58 59 60 61 62 63         A1 B1 C1 D1 E1 F1 G1 H1
 """
 
-BOARD_LENGTH = 8
-BOARD_SQUARES = BOARD_LENGTH**2
-
 def set_bit(bb, square):
 	return bb | (np.ulonglong(1) << np.ulonglong(square))
 
@@ -37,7 +34,6 @@ def get_lsb1_index(bb):
 		return count_bits((bb & -bb) - np.ulonglong(1))
 	else:
 		return -1
-
 
 def print_bb(bb):
     print("\n")

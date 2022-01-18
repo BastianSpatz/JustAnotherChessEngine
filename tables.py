@@ -309,3 +309,25 @@ def get_rook_attacks(sq, occ):
 def get_queen_attacks(sq, occ):
 	return get_rook_attacks(sq, occ) | get_bishop_attacks(sq, occ)
 
+def get_attacks(piece, start_square, board):
+    if piece == Piece.KNIGHT:
+        return knight_attacks[start_square] & ~board.combined_pieces_bitboard[board.color]
+    elif piece == Piece.BISHOP:
+        return get_bishop_attacks(start_square, board.occupied_squares) & ~board.combined_pieces_bitboard[board.color]
+    elif piece == Piece.ROOK:
+        return get_rook_attacks(start_square, board.occupied_squares) & ~board.combined_pieces_bitboard[board.color]
+    elif piece == Piece.QUEEN:
+        return get_queen_attacks(start_square, board.occupied_squares) & ~board.combined_pieces_bitboard[board.color]
+    elif piece == Piece.KING:
+        return king_attacks[start_square] & ~board.combined_pieces_bitboard[board.color]
+
+def is_square_attacked(square, board):
+	opponent_color = ~board.color
+	if pawn_attacks[opponent_color][square] & board.pieces_bitboard[board.color][Piece.PAWN] \
+			or knight_attacks[square] & board.pieces_bitboard[board.color][Piece.KNIGHT] \
+			or get_bishop_attacks(square, board.occupied_squares) & board.pieces_bitboard[board.color][Piece.BISHOP] \
+			or get_rook_attacks(square, board.occupied_squares) & board.pieces_bitboard[board.color][Piece.ROOK] \
+			or get_queen_attacks(square, board.occupied_squares) & board.pieces_bitboard[board.color][Piece.QUEEN] \
+			or king_attacks[square] & board.pieces_bitboard[board.color][Piece.KING]:
+		return True
+	return False
