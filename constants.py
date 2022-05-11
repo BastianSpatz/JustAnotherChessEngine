@@ -12,14 +12,14 @@ UNIVERSE = np.ulonglong(0xFFFFFFFFFFFFFFFF)
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 SQUARES = [
-    A1, B1, C1, D1, E1, F1, G1, H1,
-    A2, B2, C2, D2, E2, F2, G2, H2,
-    A3, B3, C3, D3, E3, F3, G3, H3,
-    A4, B4, C4, D4, E4, F4, G4, H4,
-    A5, B5, C5, D5, E5, F5, G5, H5,
-    A6, B6, C6, D6, E6, F6, G6, H6,
-    A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8,
+    A7, B7, C7, D7, E7, F7, G7, H7,
+    A6, B6, C6, D6, E6, F6, G6, H6,
+    A5, B5, C5, D5, E5, F5, G5, H5,
+    A4, B4, C4, D4, E4, F4, G4, H4,
+    A3, B3, C3, D3, E3, F3, G3, H3,
+    A2, B2, C2, D2, E2, F2, G2, H2,
+    A1, B1, C1, D1, E1, F1, G1, H1,
 ] = range(BOARD_SQUARES)
 
 BB_SQUARES = [
@@ -146,86 +146,14 @@ class Piece(IntEnum):
 PIECE_SYMBOLS = ["P", "R", "N", "B", "Q", "K", "p", "r", "n", "b", "q", "k"]
 
 UNICODE_PIECE_SYMBOLS = {
-    "R": "♖", "r": "♜",
-    "N": "♘", "n": "♞",
-    "B": "♗", "b": "♝",
-    "Q": "♕", "q": "♛",
-    "K": "♔", "k": "♚",
-    "P": "♙", "p": "♟",
+    "r": "♖", "R": "♜",
+    "n": "♘", "N": "♞",
+    "b": "♗", "B": "♝",
+    "q": "♕", "Q": "♛",
+    "k": "♔", "K": "♚",
+    "p": "♙", "P": "♟",
 }
 
-class Square:
-    A1 = np.ulonglong(0)
-    B1 = np.ulonglong(1)
-    C1 = np.ulonglong(2)
-    D1 = np.ulonglong(3)
-    E1 = np.ulonglong(4)
-    F1 = np.ulonglong(5)
-    G1 = np.ulonglong(6)
-    H1 = np.ulonglong(7)
-
-    A2 = np.ulonglong(8)
-    B2 = np.ulonglong(9)
-    C2 = np.ulonglong(10)
-    D2 = np.ulonglong(11)
-    E2 = np.ulonglong(12)
-    F2 = np.ulonglong(13)
-    G2 = np.ulonglong(14)
-    H2 = np.ulonglong(15)
-
-    A3 = np.ulonglong(16)
-    B3 = np.ulonglong(17)
-    C3 = np.ulonglong(18)
-    D3 = np.ulonglong(19)
-    E3 = np.ulonglong(20)
-    F3 = np.ulonglong(21)
-    G3 = np.ulonglong(22)
-    H3 = np.ulonglong(23)
-
-    A4 = np.ulonglong(24)
-    B4 = np.ulonglong(25)
-    C4 = np.ulonglong(26)
-    D4 = np.ulonglong(27)
-    E4 = np.ulonglong(28)
-    F4 = np.ulonglong(29)
-    G4 = np.ulonglong(30)
-    H4 = np.ulonglong(31)
-
-    A5 = np.ulonglong(32)
-    B5 = np.ulonglong(33)
-    C5 = np.ulonglong(34)
-    D5 = np.ulonglong(35)
-    E5 = np.ulonglong(36)
-    F5 = np.ulonglong(37)
-    G5 = np.ulonglong(38)
-    H5 = np.ulonglong(39)
-
-    A6 = np.ulonglong(40)
-    B6 = np.ulonglong(41)
-    C6 = np.ulonglong(42)
-    D6 = np.ulonglong(43)
-    E6 = np.ulonglong(44)
-    F6 = np.ulonglong(45)
-    G6 = np.ulonglong(46)
-    H6 = np.ulonglong(47)
-
-    A7 = np.ulonglong(48)
-    B7 = np.ulonglong(49)
-    C7 = np.ulonglong(50)
-    D7 = np.ulonglong(51)
-    E7 = np.ulonglong(52)
-    F7 = np.ulonglong(53)
-    G7 = np.ulonglong(54)
-    H7 = np.ulonglong(55)
-
-    A8 = np.ulonglong(56)
-    B8 = np.ulonglong(57)
-    C8 = np.ulonglong(58)
-    D8 = np.ulonglong(59)
-    E8 = np.ulonglong(60)
-    F8 = np.ulonglong(61)
-    G8 = np.ulonglong(62)
-    H8 = np.ulonglong(63)
 
 
 square_to_coordinates = [
@@ -284,21 +212,21 @@ class File:
 
 
 class Rank:
-    x1 = [0, 1, 2, 3, 4, 5, 6, 7]
-    x2 = [8, 9, 10, 11, 12, 13, 14, 15]
-    x3 = [16, 17, 18, 19, 20, 21, 22, 23]
-    x4 = [24, 25, 26, 27, 28, 29, 30, 31]
-    x5 = [32, 33, 34, 35, 36, 37, 38, 39]
-    x6 = [40, 41, 42, 43, 44, 45, 46, 47]
-    x7 = [48, 49, 50, 51, 52, 53, 54, 55]
-    x8 = [56, 57, 58, 59, 60, 61, 62, 63]
+    x1 = [56, 57, 58, 59, 60, 61, 62, 63]
+    x2 = [48, 49, 50, 51, 52, 53, 54, 55]
+    x3 = [40, 41, 42, 43, 44, 45, 46, 47]
+    x4 = [32, 33, 34, 35, 36, 37, 38, 39]
+    x5 = [24, 25, 26, 27, 28, 29, 30, 31]
+    x6 = [16, 17, 18, 19, 20, 21, 22, 23]
+    x7 = [8, 9, 10, 11, 12, 13, 14, 15]
+    x8 = [0, 1, 2, 3, 4, 5, 6, 7]
     
-    rank_1 = np.ulonglong(0x00000000000000FF)
-    rank_2 = np.ulonglong(0x000000000000FF00)
-    rank_3 = np.ulonglong(0x0000000000FF0000)
-    rank_4 = np.ulonglong(0x00000000FF000000)
-    rank_5 = np.ulonglong(0x000000FF00000000)
-    rank_6 = np.ulonglong(0x0000FF0000000000)
-    rank_7 = np.ulonglong(0x00FF000000000000)
-    rank_8 = np.ulonglong(0xFF00000000000000)
+    rank_1 = np.ulonglong(0xFF00000000000000)
+    rank_2 = np.ulonglong(0x00FF000000000000)
+    rank_3 = np.ulonglong(0x0000FF0000000000)
+    rank_4 = np.ulonglong(0x000000FF00000000)
+    rank_5 = np.ulonglong(0x00000000FF000000)
+    rank_6 = np.ulonglong(0x0000000000FF0000)
+    rank_7 = np.ulonglong(0x000000000000FF00)
+    rank_8 = np.ulonglong(0x00000000000000FF)
 
