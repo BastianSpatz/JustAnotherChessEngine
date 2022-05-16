@@ -287,7 +287,7 @@ bishop_attacks = init_sliders(np.empty((64, 512), dtype=np.ulonglong), bish=True
 rook_attacks = init_sliders(np.empty((64, 4096), dtype=np.ulonglong), bish=False)
 
 # leapers
-pawn_attacks = np.fromiter((mask_pawn_attacks(color, sq) for color in Color for sq in range(64)), dtype=np.ulonglong)
+pawn_attacks = np.fromiter((mask_pawn_attacks(sq, color) for color in Color for sq in range(64)), dtype=np.ulonglong)
 pawn_attacks.shape = (2, 64)
 knight_attacks = np.fromiter((mask_knight_attacks(sq) for sq in range(64)), dtype=np.ulonglong)
 king_attacks = np.fromiter((mask_king_attacks(sq) for sq in range(64)), dtype=np.ulonglong)
@@ -321,13 +321,13 @@ def get_attacks(piece, start_square, board):
     elif piece == Piece.KING:
         return king_attacks[start_square] & ~board.combined_pieces_bitboard[board.color]
 
-def is_square_attacked(square, board):
-	opponent_color = ~board.color
-	if pawn_attacks[opponent_color][square] & board.pieces_bitboard[board.color][Piece.PAWN] \
-			or knight_attacks[square] & board.pieces_bitboard[board.color][Piece.KNIGHT] \
-			or get_bishop_attacks(square, board.occupied_squares) & board.pieces_bitboard[board.color][Piece.BISHOP] \
-			or get_rook_attacks(square, board.occupied_squares) & board.pieces_bitboard[board.color][Piece.ROOK] \
-			or get_queen_attacks(square, board.occupied_squares) & board.pieces_bitboard[board.color][Piece.QUEEN] \
-			or king_attacks[square] & board.pieces_bitboard[board.color][Piece.KING]:
+def is_square_attacked(square, board, color):
+	opponent_color = ~color
+	if pawn_attacks[opponent_color][square] & board.pieces_bitboard[color][Piece.PAWN] \
+			or knight_attacks[square] & board.pieces_bitboard[color][Piece.KNIGHT] \
+			or get_bishop_attacks(square, board.occupied_squares) & board.pieces_bitboard[color][Piece.BISHOP] \
+			or get_rook_attacks(square, board.occupied_squares) & board.pieces_bitboard[color][Piece.ROOK] \
+			or get_queen_attacks(square, board.occupied_squares) & board.pieces_bitboard[color][Piece.QUEEN] \
+			or king_attacks[square] & board.pieces_bitboard[color][Piece.KING]:
 		return True
 	return False
