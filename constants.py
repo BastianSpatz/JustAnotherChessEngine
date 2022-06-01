@@ -36,6 +36,8 @@ BB_SQUARES = [
     BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8,
 ] = [1 << sq for sq in SQUARES]
 
+wk, wq, bk, bq = (2 ** i for i in range(4))
+
 def square_mirror(square):
     """Mirrors the square vertically."""
     return square ^ 0x38
@@ -146,7 +148,7 @@ class Piece(IntEnum):
                 return "k"
 
 
-PIECE_SYMBOLS = ["P", "R", "N", "B", "Q", "K", "p", "r", "n", "b", "q", "k"]
+PIECE_SYMBOLS = ["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"]
 
 UNICODE_PIECE_SYMBOLS = {
     "r": "♖", "R": "♜",
@@ -192,6 +194,17 @@ algebraic_square_map = {
     'a2': 48,'b2': 49,'c2': 50,'d2': 51,'e2': 52,'f2': 53,'g2': 54,'h2': 55,
     'a1': 56,'b1': 57,'c1': 58,'d1': 59,'e1': 60,'f1': 61,'g1': 62,'h1': 63
 }
+
+castling_rights = [
+     7, 15, 15, 15,  3, 15, 15, 11,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    13, 15, 15, 15, 12, 15, 15, 14
+]
 
 
 class File:

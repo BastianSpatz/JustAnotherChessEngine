@@ -27,9 +27,9 @@ class Board():
             1000    8  black king can castle to the queen side
         """
         # self.castle = np.uint8(0)
-        self.castle = {"wk": 0, "wq": 0, "bk": 0, "bq": 0}
+        self.castle = 0#{"wk": 0, "wq": 0, "bk": 0, "bq": 0}
 
-        self._move_stack = []
+        self._board_states = []
 
         '''
             Define all the bitboards we need to keep track of:
@@ -63,13 +63,26 @@ class Board():
         output += "Enpassant:   \n" 
         output += "no \n" if self.en_passant_square == 64 else str(self.en_passant_square) + ": " + square_to_coordinates[self.en_passant_square] + "\n"
         output += "Castling:    \n" 
-        output += "K" if (self.castle["wk"] == 1) else '-' 
-        output += "Q" if (self.castle["wq"] == 1) else '-' 
-        output += "k" if (self.castle["bk"] == 1) else '-' 
-        output += "q" if (self.castle["bq"] == 1) else '-'
+        castle = (
+            f"{'K' if self.castle & wk else ''}{'Q' if self.castle & wq else ''}"
+            f"{'k' if self.castle & bk else ''}{'q' if self.castle & bq else ''} "
+        )
+        output += castle if castle else "-"
+        # output += "K" if (self.castle["wk"] == 1) else '-' 
+        # output += "Q" if (self.castle["wq"] == 1) else '-' 
+        # output += "k" if (self.castle["bk"] == 1) else '-' 
+        # output += "q" if (self.castle["bq"] == 1) else '-'
 
         return output
-                            
+
+    def set_board_state(self, board_state):
+        self.pieces_bitboard = board_state.pieces_bitboard
+        self.combined_pieces_bitboard = board_state.combined_pieces_bitboard
+        self.occupied_squares = board_state.occupied_squares
+
+        self.color = board_state.color
+        self.en_passant_square = board_state.en_passant_square
+        self.castle = board_state.castle                  
 
     def set_fen(self, fen) -> None:
         parts = fen.split()
@@ -101,7 +114,6 @@ class Board():
         else:
             if not re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z").match(castling_part):
                 raise ValueError(f"invalid castling part in fen: {fen!r}")  
-        print(castling_part)
 
         # En passant square.
         try:
@@ -115,16 +127,16 @@ class Board():
                 raise ValueError(f"invalid en passant part in fen: {fen!r}")    
 
         castling_part = list(castling_part)
-        self.castle = {"wk": 0, "wq": 0, "bk": 0, "bq": 0}
+        self.castle = 0
         for i in range(len(castling_part)):
             if castling_part[i] == "K":
-                self.castle["wk"] = 1
+                self.castle |= wk
             elif castling_part[i] == "Q":
-                self.castle["wq"] = 1
+                self.castle |= wq
             elif castling_part[i] == "k":
-                self.castle["bk"] = 1
+                self.castle |= bk
             elif castling_part[i] == "q":
-                self.castle["bq"] = 1
+                self.castle |= bq
 
         if " " in board_part:
             raise ValueError(f"expected position part of fen, got multiple parts: {fen!r}")
@@ -186,6 +198,7 @@ class Board():
                 self.occupied_squares = set_bit(self.occupied_squares, square_index)
 
                 square_index += 1
+
 
 
         
