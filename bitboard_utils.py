@@ -27,13 +27,10 @@ def count_bits(bb):
 	while bb:
 		count += 1
 		bb &= bb - np.ulonglong(1)
-	return int(count)
+	return count
 
 def get_lsb1_index(bb):
-	if bb:
-		return count_bits((bb & -bb) - np.ulonglong(1))
-	else:
-		return -1
+	return count_bits((bb & -bb) - np.ulonglong(1))
 
 def print_bb(bb):
     print("\n")

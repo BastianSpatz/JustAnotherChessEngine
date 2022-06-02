@@ -1,44 +1,21 @@
-# this trigger the whole computatuon of look up tables
-# from tables import *
 import re
-from constants import *
+import numpy as np
+
+from constants import BOARD_LENGTH, Color, Piece, UNICODE_PIECE_SYMBOLS, wk, wq, bk, bq, STARTING_FEN, PIECE_SYMBOLS, EMPTY, BOTH
 from bitboard_utils import get_bit, set_bit
 
 class Board():
-    """
-        Represent the games chess board
-            - Keep track of en-passant squares
-            - Keep track of 
-    """
+
     def __init__(self):
 
         self.color = Color.WHITE
 
-        self.en_passant_square = 64 # means no square
+        self.en_passant_square = 64 
 
-        self.is_checkmate = False
-        self.is_stalemate = False
-
-        """ 
-        save this as a 4bit binary 
-            0001    1  white king can castle to the king side
-            0010    2  white king can castle to the queen side
-            0100    4  black king can castle to the king side
-            1000    8  black king can castle to the queen side
-        """
-        # self.castle = np.uint8(0)
-        self.castle = 0#{"wk": 0, "wq": 0, "bk": 0, "bq": 0}
-
-        self._board_states = []
-
-        '''
-            Define all the bitboards we need to keep track of:
-        '''
+        self.castle = 0
 
         self.pieces_bitboard = np.zeros((2, 6), dtype=np.uint64)
-        self.combined_pieces_bitboard = np.zeros(2, dtype=np.uint64)
-
-        self.occupied_squares = EMPTY
+        self.occupancy = np.zeros(3, dtype=np.uint64)
 
         self.set_fen(STARTING_FEN)
 
@@ -49,7 +26,7 @@ class Board():
             for file in range(BOARD_LENGTH):
                 square = rank * 8 + file
                 for color in Color:
-                    if get_bit(self.combined_pieces_bitboard[color], square):
+                    if get_bit(self.occupancy[color], square):
                         for piece in Piece:
                             if get_bit(self.pieces_bitboard[color][piece], square):
                                 output += UNICODE_PIECE_SYMBOLS[piece.__to_symbol__(color)]
@@ -68,21 +45,8 @@ class Board():
             f"{'k' if self.castle & bk else ''}{'q' if self.castle & bq else ''} "
         )
         output += castle if castle else "-"
-        # output += "K" if (self.castle["wk"] == 1) else '-' 
-        # output += "Q" if (self.castle["wq"] == 1) else '-' 
-        # output += "k" if (self.castle["bk"] == 1) else '-' 
-        # output += "q" if (self.castle["bq"] == 1) else '-'
 
         return output
-
-    def set_board_state(self, board_state):
-        self.pieces_bitboard = board_state.pieces_bitboard
-        self.combined_pieces_bitboard = board_state.combined_pieces_bitboard
-        self.occupied_squares = board_state.occupied_squares
-
-        self.color = board_state.color
-        self.en_passant_square = board_state.en_passant_square
-        self.castle = board_state.castle                  
 
     def set_fen(self, fen) -> None:
         parts = fen.split()
@@ -178,24 +142,20 @@ class Board():
         for color in Color:
             for piece in Piece:
                 self.pieces_bitboard[color][piece] = EMPTY
-            self.combined_pieces_bitboard[color] = EMPTY
-        self.occupied_squares = EMPTY
+            self.occupancy[color] = EMPTY
+        self.occupancy[BOTH] = EMPTY
 
         # Put pieces on the board.
         square_index = 0
         for c in board_part:
-            # if c == "w":
-            #   self.color = Color.WHITE
-            # elif c == "b":
-            #   self.color = Color.BLACK
             if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
                 square_index += int(c)
             elif c in PIECE_SYMBOLS:
                 piece, color = Piece.__from_symbol__(c)
 
                 self.pieces_bitboard[color][piece] = set_bit(self.pieces_bitboard[color][piece], square_index)
-                self.combined_pieces_bitboard[color] = set_bit(self.combined_pieces_bitboard[color], square_index)
-                self.occupied_squares = set_bit(self.occupied_squares, square_index)
+                self.occupancy[color] = set_bit(self.occupancy[color], square_index)
+                self.occupancy[BOTH] = set_bit(self.occupancy[BOTH], square_index)
 
                 square_index += 1
 

@@ -9,7 +9,7 @@ from constants import *
 def mask_pawn_attacks(square: int, color: int):
 	bb = set_bit(EMPTY, square)
 
-	if color == Color.WHITE:
+	if color == white:
 		west_attacks = (bb >> np.uint64(9)) & ~File.file_H
 		east_attacks = (bb >> np.uint64(7)) & ~File.file_A
 	else:
@@ -287,7 +287,7 @@ bishop_attacks = init_sliders(np.empty((64, 512), dtype=np.ulonglong), bish=True
 rook_attacks = init_sliders(np.empty((64, 4096), dtype=np.ulonglong), bish=False)
 
 # leapers
-pawn_attacks = np.fromiter((mask_pawn_attacks(sq, color) for color in Color for sq in range(64)), dtype=np.ulonglong)
+pawn_attacks = np.fromiter((mask_pawn_attacks(sq, color) for color in [white, black] for sq in range(64)), dtype=np.ulonglong)
 pawn_attacks.shape = (2, 64)
 knight_attacks = np.fromiter((mask_knight_attacks(sq) for sq in range(64)), dtype=np.ulonglong)
 king_attacks = np.fromiter((mask_king_attacks(sq) for sq in range(64)), dtype=np.ulonglong)
@@ -310,26 +310,25 @@ def get_queen_attacks(sq, occ):
 	return get_rook_attacks(sq, occ) | get_bishop_attacks(sq, occ)
 
 def get_attacks(piece, start_square, board, color):
-    if piece == Piece.KNIGHT:
-        return knight_attacks[start_square] & ~board.combined_pieces_bitboard[color]
-    elif piece == Piece.BISHOP:
-        return get_bishop_attacks(start_square, board.occupied_squares) & ~board.combined_pieces_bitboard[color]
-    elif piece == Piece.ROOK:
-        return get_rook_attacks(start_square, board.occupied_squares) & ~board.combined_pieces_bitboard[color]
-    elif piece == Piece.QUEEN:
-        return get_queen_attacks(start_square, board.occupied_squares) & ~board.combined_pieces_bitboard[color]
-    elif piece == Piece.KING:
-        return king_attacks[start_square] & ~board.combined_pieces_bitboard[color]
+    if piece == knight:
+        return knight_attacks[start_square] & ~board.occupancy[color]
+    elif piece == bishop:
+        return get_bishop_attacks(start_square, board.occupancy[both]) & ~board.occupancy[color]
+    elif piece == rook:
+        return get_rook_attacks(start_square, board.occupancy[both]) & ~board.occupancy[color]
+    elif piece == queen:
+        return get_queen_attacks(start_square, board.occupancy[both]) & ~board.occupancy[color]
+    elif piece == king:
+        return king_attacks[start_square] & ~board.occupancy[color]
 
-def is_square_attacked(square, board, color):
-	opponent_color = color ^ 1
-	# print("in square attacked")
-	# print(opponent_color)
-	if pawn_attacks[opponent_color][square] & board.pieces_bitboard[color][Piece.PAWN] \
-			or knight_attacks[square] & board.pieces_bitboard[color][Piece.KNIGHT] \
-			or get_bishop_attacks(square, board.occupied_squares) & board.pieces_bitboard[color][Piece.BISHOP] \
-			or get_rook_attacks(square, board.occupied_squares) & board.pieces_bitboard[color][Piece.ROOK] \
-			or get_queen_attacks(square, board.occupied_squares) & board.pieces_bitboard[color][Piece.QUEEN] \
-			or king_attacks[square] & board.pieces_bitboard[color][Piece.KING]:
-		return True
-	return False
+def is_square_attacked(pos, sq, color):
+    """return True if the square is attacked by the given color else False"""
+    opp = color ^ 1
+    if pawn_attacks[opp][sq] & pos.pieces_bitboard[color][pawn] \
+            or get_bishop_attacks(sq, pos.occupancy[both]) & pos.pieces_bitboard[color][bishop] \
+            or knight_attacks[sq] & pos.pieces_bitboard[color][knight] \
+            or get_rook_attacks(sq, pos.occupancy[both]) & pos.pieces_bitboard[color][rook] \
+            or get_queen_attacks(sq, pos.occupancy[both]) & pos.pieces_bitboard[color][queen] \
+            or king_attacks[sq] & pos.pieces_bitboard[color][king]:
+        return True
+    return False

@@ -4,6 +4,46 @@ import numpy as np
 
 BOARD_LENGTH = 8
 BOARD_SQUARES = BOARD_LENGTH**2
+(
+    a8,    b8,    c8,    d8,    e8,    f8,    g8,    h8,
+    a7,    b7,    c7,    d7,    e7,    f7,    g7,    h7,
+    a6,    b6,    c6,    d6,    e6,    f6,    g6,    h6,
+    a5,    b5,    c5,    d5,    e5,    f5,    g5,    h5,
+    a4,    b4,    c4,    d4,    e4,    f4,    g4,    h4,
+    a3,    b3,    c3,    d3,    e3,    f3,    g3,    h3,
+    a2,    b2,    c2,    d2,    e2,    f2,    g2,    h2,
+    a1,    b1,    c1,    d1,    e1,    f1,    g1,    h1,
+    no_sq,
+) = np.arange(BOARD_SQUARES + 1, dtype=np.uint8)
+
+pawn, knight, bishop, rook, queen, king = range(6)
+
+Pieces = [pawn, knight, bishop, rook, queen, king]
+
+def piece_from_symbol(symbol: str):
+    piece = None
+    
+    if symbol.lower() == "p":
+        piece = pawn
+    elif symbol.lower() == "n":
+        piece = knight
+    elif symbol.lower() == "b":
+        piece = bishop
+    elif symbol.lower() == "r":
+        piece = rook
+    elif symbol.lower() == "q":
+        piece = queen
+    elif symbol.lower() == "k":
+        piece = king
+    else:
+        print("Symbol not found..")
+        return
+    if symbol.isupper():
+        return piece, white
+    else:
+        return piece, black
+
+white, black, both = np.arange(3, dtype=np.uint8)
 
 EMPTY = np.ulonglong(0)
 BIT = np.ulonglong(1)
@@ -14,138 +54,8 @@ tricky_position = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQk
 killer_position = "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1"
 cmk_position = "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9 "
 
-SQUARES = [
-    A8, B8, C8, D8, E8, F8, G8, H8,
-    A7, B7, C7, D7, E7, F7, G7, H7,
-    A6, B6, C6, D6, E6, F6, G6, H6,
-    A5, B5, C5, D5, E5, F5, G5, H5,
-    A4, B4, C4, D4, E4, F4, G4, H4,
-    A3, B3, C3, D3, E3, F3, G3, H3,
-    A2, B2, C2, D2, E2, F2, G2, H2,
-    A1, B1, C1, D1, E1, F1, G1, H1,
-] = range(BOARD_SQUARES)
-
-BB_SQUARES = [
-    BB_A1, BB_B1, BB_C1, BB_D1, BB_E1, BB_F1, BB_G1, BB_H1,
-    BB_A2, BB_B2, BB_C2, BB_D2, BB_E2, BB_F2, BB_G2, BB_H2,
-    BB_A3, BB_B3, BB_C3, BB_D3, BB_E3, BB_F3, BB_G3, BB_H3,
-    BB_A4, BB_B4, BB_C4, BB_D4, BB_E4, BB_F4, BB_G4, BB_H4,
-    BB_A5, BB_B5, BB_C5, BB_D5, BB_E5, BB_F5, BB_G5, BB_H5,
-    BB_A6, BB_B6, BB_C6, BB_D6, BB_E6, BB_F6, BB_G6, BB_H6,
-    BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7,
-    BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8,
-] = [1 << sq for sq in SQUARES]
 
 wk, wq, bk, bq = (2 ** i for i in range(4))
-
-def square_mirror(square):
-    """Mirrors the square vertically."""
-    return square ^ 0x38
-    
-SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
-
-RANKS = np.array(
-    [0x00000000000000FF << 8 * i for i in range(8)],
-    dtype=np.ulonglong)
-
-FILES = np.array(
-    [0x0101010101010101 << i for i in range(8)],
-    dtype=np.ulonglong)
-
-class Color(IntEnum):
-    WHITE=0
-    BLACK=1
-
-    def __str__(self):
-        if self == Color.WHITE:
-            return "w"
-        else:
-            return "b"
-
-    def __invert__(self):
-        if self == Color.WHITE:
-            return Color.BLACK
-        else:
-            return Color.WHITE
-
-
-class Piece(IntEnum):
-    PAWN = 0
-    KNIGHT = 1
-    BISHOP = 2
-    ROOK = 3
-    QUEEN = 4
-    KING = 5
-
-    def __str__(self):
-        if self == Piece.PAWN:
-            return "PAWN"
-        elif self == Piece.KNIGHT:
-            return "KNIGHT"
-        elif self == Piece.BISHOP:
-            return "BISHOP"
-        elif self == Piece.ROOK:
-            return "ROOK"
-        elif self == Piece.QUEEN:
-            return "QUEEN"
-        else:
-            return "KING"
-
-    def __from_symbol__(symbol: str):
-        piece = None
-        
-        if symbol.lower() == "p":
-            piece = Piece.PAWN
-        elif symbol.lower() == "n":
-            piece = Piece.KNIGHT
-        elif symbol.lower() == "b":
-            piece = Piece.BISHOP
-        elif symbol.lower() == "r":
-            piece = Piece.ROOK
-        elif symbol.lower() == "q":
-            piece = Piece.QUEEN
-        elif symbol.lower() == "k":
-            piece = Piece.KING
-        else:
-            print("Symbol not found..")
-            return
-
-        if symbol.isupper():
-            return piece, Color.WHITE
-        else:
-            return piece, Color.BLACK
-
-    def __to_symbol__(self, color):
-        if self == Piece.PAWN:
-            if color == Color.WHITE:
-                return "P"
-            else:
-                return "p"
-        elif self == Piece.KNIGHT:
-            if color == Color.WHITE:
-                return "N"
-            else:
-                return "n"
-        elif self == Piece.BISHOP:
-            if color == Color.WHITE:
-                return "B"
-            else:
-                return "b"
-        elif self == Piece.ROOK:
-            if color == Color.WHITE:
-                return "R"
-            else:
-                return "r"
-        elif self == Piece.QUEEN:
-            if color == Color.WHITE:
-                return "Q"
-            else:
-                return "q"
-        else:
-            if color == Color.WHITE:
-                return "K"
-            else:
-                return "k"
 
 
 PIECE_SYMBOLS = ["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"]
