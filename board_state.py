@@ -13,8 +13,8 @@ class BoardState():
 
         self.castle = 0
 
-        self.pieces_bitboard = np.zeros((2, 6), dtype=np.uint64)
-        self.occupancy = np.zeros(3, dtype=np.uint64)
+        self.pieces_bitboard = np.zeros((2, 6), dtype=np.ulonglong)
+        self.occupancy = np.zeros(3, dtype=np.ulonglong)
 
     def __str__(self):
         output = "\n"
@@ -26,13 +26,13 @@ class BoardState():
                     if get_bit(self.occupancy[color], square):
                         for piece in Pieces:
                             if get_bit(self.pieces_bitboard[color][piece], square):
-                                output += UNICODE_PIECE_SYMBOLS[PIECE_SYMBOLS[piece + 6*color]]
+                                output += " " + UNICODE_PIECE_SYMBOLS[PIECE_SYMBOLS[piece + 6*color]]
                                 break
                         break
                 else:
-                    output += '· '
+                    output += ' · '
             output += "\n" 
-        output += "  A B C D E F G H\n"
+        output += "   A  B  C  D  E  F  G  H\n"
         output += "Side:     \n" + str(self.color) + "\n"
         output += "Enpassant:   \n" 
         output += "no \n" if self.en_passant_square == 64 else str(self.en_passant_square) + ": " + square_to_coordinates[self.en_passant_square] + "\n"
@@ -155,3 +155,5 @@ class BoardState():
                 self.occupancy[both] = set_bit(self.occupancy[both], square_index)
 
                 square_index += 1
+
+

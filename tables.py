@@ -10,11 +10,11 @@ def mask_pawn_attacks(square: int, color: int):
 	bb = set_bit(EMPTY, square)
 
 	if color == white:
-		west_attacks = (bb >> np.uint64(9)) & ~File.file_H
-		east_attacks = (bb >> np.uint64(7)) & ~File.file_A
+		west_attacks = (bb >> np.ulonglong(9)) & ~File.file_H
+		east_attacks = (bb >> np.ulonglong(7)) & ~File.file_A
 	else:
-		east_attacks = (bb << np.uint64(9)) & ~File.file_A
-		west_attacks = (bb << np.uint64(7)) & ~File.file_H
+		east_attacks = (bb << np.ulonglong(9)) & ~File.file_A
+		west_attacks = (bb << np.ulonglong(7)) & ~File.file_H
 	return east_attacks | west_attacks
 
 def mask_knight_attacks(square: int):
@@ -39,7 +39,7 @@ def mask_king_attacks(square: int):
 	return bb
 
 def mask_bishop_attacks(sq):
-	attacks = np.ulonglong(0)
+	attacks = EMPTY
 	tr = sq // 8
 	tf = sq % 8
 
@@ -54,7 +54,7 @@ def mask_bishop_attacks(sq):
 	return attacks
 
 def mask_rook_attacks(sq):
-	attacks = np.ulonglong(0)
+	attacks = EMPTY
 	tr = sq // 8
 	tf = sq % 8
 
@@ -89,7 +89,7 @@ def bishop_attacks_with_occupancy(sq, occ):
 			f = tf + direction[1] * reach
 			if not 0 <= r <= 7 or not 0 <= f <= 7:
 				break
-			attacked_bit = BIT << np.uint8(r * 8 + f)
+			attacked_bit = BIT << np.ulonglong(r * 8 + f)
 			attacks |= attacked_bit
 			if attacked_bit & occ:
 				break
@@ -107,7 +107,7 @@ def rook_attacks_with_occupancy(sq, occ):
 			r = tr + direction * i
 			if not 0 <= r <= 7:
 				break
-			attacked_bit = BIT << np.uint8(r * 8 + tf)
+			attacked_bit = BIT << np.ulonglong(r * 8 + tf)
 			attacks |= attacked_bit
 			if attacked_bit & occ:
 				break
@@ -116,7 +116,7 @@ def rook_attacks_with_occupancy(sq, occ):
 			f = tf + direction * i
 			if not 0 <= f <= 7:
 				break
-			attacked_bit = BIT << np.uint8(tr * 8 + f)
+			attacked_bit = BIT << np.ulonglong(tr * 8 + f)
 			attacks |= attacked_bit
 			if attacked_bit & occ:
 				break
@@ -151,7 +151,7 @@ rook_relevant_bits = np.array([
 
 
 def bishop_attacks_with_occupancy(sq, block):
-	attacks = np.ulonglong(0)
+	attacks = EMPTY
 	tr = sq // 8
 	tf = sq % 8
 
@@ -169,7 +169,7 @@ def bishop_attacks_with_occupancy(sq, block):
 	return attacks
 
 def rook_attacks_with_occupancy(sq, block):
-	attacks = np.ulonglong(0)
+	attacks = EMPTY
 	tr = sq // 8
 	tf = sq % 8
 
@@ -195,7 +195,7 @@ def rook_attacks_with_occupancy(sq, block):
 	return attacks
 
 def set_occupancy(index, bits_in_mask, attack_mask):
-	occupancy = np.ulonglong(0)
+	occupancy = EMPTY
 
 	for count in range(bits_in_mask):
 
@@ -265,13 +265,11 @@ def init_sliders(attacks, bish):
 		attack_mask = bishop_masks[sq] if bish else rook_masks[sq]
 
 		relevant_bits_count = count_bits(attack_mask)
-		occupancy_indices = int(1 << relevant_bits_count)
+		occupancy_indices = 1 << relevant_bits_count
 
 		for index in range(occupancy_indices):
 			if bish:  # bishop
 				occupancy = set_occupancy(index, relevant_bits_count, attack_mask)
-				# print((occupancy * bishop_magic_numbers[sq]))
-				# print(type((occupancy * bishop_magic_numbers[sq])))
 				magic_index = (occupancy * bishop_magic_numbers[sq]) >> np.ulonglong(64 - bishop_relevant_bits[sq])
 				attacks[sq][magic_index] = bishop_attacks_with_occupancy(sq, occupancy)
 

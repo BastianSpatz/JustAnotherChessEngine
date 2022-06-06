@@ -1,12 +1,9 @@
 from move import encode_move, get_move_uci
-from generate_moves import generate_pseudo_legal_moves, make_move, print_move_list
+from generate_moves import generate_pseudo_legal_moves, make_move, generate_legal_moves
 from board_state import BoardState
 import chess
 import sys
 
-def generate_legal_moves(pos):
-    """very inefficient, use only to debug"""
-    return [move for move in generate_pseudo_legal_moves(pos) if make_move(pos, move)]
 
 def perft_main(board, depth):
 	if depth == 0:
@@ -38,7 +35,6 @@ def debug_perft(board, depth, b, print_info=False):
         print(board)
         if PC_moves - JACE_moves:
             print("JACE does not see:", PC_moves - JACE_moves)
-            print_move_list(moves)
             print(JACE_moves)
         else:
             print("JACE thinks she can play:", JACE_moves - PC_moves)
