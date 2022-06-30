@@ -7,41 +7,41 @@ from constants import *
 #################################################
 
 def mask_pawn_attacks(square: int, color: int):
-	bb = set_bit(EMPTY, square)
+	bitboard = set_bit(EMPTY, square)
 
 	if color == white:
-		west_attacks = (bb >> np.ulonglong(9)) & ~File.file_H
-		east_attacks = (bb >> np.ulonglong(7)) & ~File.file_A
+		west_attacks = (bitboard >> np.ulonglong(9)) & ~File.file_H
+		east_attacks = (bitboard >> np.ulonglong(7)) & ~File.file_A
 	else:
-		east_attacks = (bb << np.ulonglong(9)) & ~File.file_A
-		west_attacks = (bb << np.ulonglong(7)) & ~File.file_H
+		east_attacks = (bitboard << np.ulonglong(9)) & ~File.file_A
+		west_attacks = (bitboard << np.ulonglong(7)) & ~File.file_H
 	return east_attacks | west_attacks
 
 def mask_knight_attacks(square: int):
-	bb = EMPTY
+	bitboard = EMPTY
 	for bit in [17, -17, 10, -10, 15, -15, 6, -6]:
-		bb |= set_bit(bb, square + bit)
+		bitboard |= set_bit(bitboard, square + bit)
 		if square in (File.A + File.B):
-			bb &= ~(File.file_H | File.file_G)
+			bitboard &= ~(File.file_H | File.file_G)
 		if square in (File.G + File.H):
-			bb &= ~(File.file_A | File.file_B)
-	return bb 
+			bitboard &= ~(File.file_A | File.file_B)
+	return bitboard 
 
 def mask_king_attacks(square: int):
-	bb = EMPTY
+	bitboard = EMPTY
 	for bit in [1, -1, 7, -7, 8, -8, 9, -9]:
-		bb = set_bit(bb, square + bit)
+		bitboard = set_bit(bitboard, square + bit)
 
 		if square in File.A:
-			bb &= ~File.file_H
+			bitboard &= ~File.file_H
 		if square in File.H:
-			bb &= ~File.file_A
-	return bb
+			bitboard &= ~File.file_A
+	return bitboard
 
-def mask_bishop_attacks(sq):
+def mask_bishop_attacks(square: int):
 	attacks = EMPTY
-	tr = sq // 8
-	tf = sq % 8
+	tr = square // 8
+	tf = square % 8
 
 	for direction in ((1, 1), (-1, 1), (1, -1), (-1, -1)):
 		for i in range(1, 7):
@@ -53,10 +53,10 @@ def mask_bishop_attacks(sq):
 
 	return attacks
 
-def mask_rook_attacks(sq):
+def mask_rook_attacks(square: int):
 	attacks = EMPTY
-	tr = sq // 8
-	tf = sq % 8
+	tr = square // 8
+	tf = square % 8
 
 	for direction in (-1, 1):
 		for i in range(1, 7):
@@ -78,10 +78,10 @@ def mask_rook_attacks(sq):
 # SLIDER PIECES BITBOARD WITH OCCUPANCY 		#
 #################################################
 
-def bishop_attacks_with_occupancy(sq, occ):
+def bishop_attacks_with_occupancy(square: int, occupancy: np.ulonglong):
 	attacks = EMPTY
-	tr = sq // 8
-	tf = sq % 8
+	tr = square // 8
+	tf = square % 8
 
 	for direction in ((1, 1), (-1, 1), (1, -1), (-1, -1)):
 		for reach in range(1, 8):
@@ -91,16 +91,16 @@ def bishop_attacks_with_occupancy(sq, occ):
 				break
 			attacked_bit = BIT << np.ulonglong(r * 8 + f)
 			attacks |= attacked_bit
-			if attacked_bit & occ:
+			if attacked_bit & occupancy:
 				break
 
 	return attacks
 
 
-def rook_attacks_with_occupancy(sq, occ):
+def rook_attacks_with_occupancy(square: int, occupancy: np.ulonglong):
 	attacks = EMPTY
-	tr = sq // 8
-	tf = sq % 8
+	tr = square // 8
+	tf = square % 8
 
 	for direction in (1, -1):
 		for i in range(1, 8):
@@ -109,7 +109,7 @@ def rook_attacks_with_occupancy(sq, occ):
 				break
 			attacked_bit = BIT << np.ulonglong(r * 8 + tf)
 			attacks |= attacked_bit
-			if attacked_bit & occ:
+			if attacked_bit & occupancy:
 				break
 
 		for i in range(1, 8):
@@ -118,7 +118,7 @@ def rook_attacks_with_occupancy(sq, occ):
 				break
 			attacked_bit = BIT << np.ulonglong(tr * 8 + f)
 			attacks |= attacked_bit
-			if attacked_bit & occ:
+			if attacked_bit & occupancy:
 				break
 
 	return attacks
@@ -150,10 +150,10 @@ rook_relevant_bits = np.array([
 ], dtype=int)
 
 
-def bishop_attacks_with_occupancy(sq, block):
+def bishop_attacks_with_occupancy(square: int, block: np.ulonglong):
 	attacks = EMPTY
-	tr = sq // 8
-	tf = sq % 8
+	tr = square // 8
+	tf = square % 8
 
 	for direction in ((1, 1), (-1, 1), (1, -1), (-1, -1)):
 		for reach in range(1, 8):
@@ -168,10 +168,10 @@ def bishop_attacks_with_occupancy(sq, block):
 
 	return attacks
 
-def rook_attacks_with_occupancy(sq, block):
+def rook_attacks_with_occupancy(square: int, block: np.ulonglong):
 	attacks = EMPTY
-	tr = sq // 8
-	tf = sq % 8
+	tr = square // 8
+	tf = square % 8
 
 	for direction in (1, -1):
 		for i in range(1, 8):
@@ -194,7 +194,7 @@ def rook_attacks_with_occupancy(sq, block):
 
 	return attacks
 
-def set_occupancy(index, bits_in_mask, attack_mask):
+def set_occupancy(index: int, bits_in_mask: int, attack_mask: np.ulonglong):
 	occupancy = EMPTY
 
 	for count in range(bits_in_mask):
@@ -254,21 +254,21 @@ bishop_magic_numbers = np.array([0x40040844404084,      0x2004208a004208,       
 								 0x28000010020204,      0x6000020202d0240,      0x8918844842082200,
 								 0x401001102902002], dtype=np.ulonglong)
 
-rook_masks = np.fromiter((mask_rook_attacks(sq) for sq in range(64)), dtype=np.ulonglong)
+rook_masks = np.fromiter((mask_rook_attacks(square) for square in range(64)), dtype=np.ulonglong)
 
-bishop_masks = np.fromiter((mask_bishop_attacks(sq) for sq in range(64)), dtype=np.ulonglong)
+bishop_masks = np.fromiter((mask_bishop_attacks(square) for square in range(64)), dtype=np.ulonglong)
 
-def init_sliders(attacks, bish):
+def init_sliders(attacks: np.ulonglong, is_bishop: bool):
 	"""initialize bishop and rook attack tables with their magic numbers"""
 
 	for sq in range(64):
-		attack_mask = bishop_masks[sq] if bish else rook_masks[sq]
+		attack_mask = bishop_masks[sq] if is_bishop else rook_masks[sq]
 
 		relevant_bits_count = count_bits(attack_mask)
 		occupancy_indices = 1 << relevant_bits_count
 
 		for index in range(occupancy_indices):
-			if bish:  # bishop
+			if is_bishop:  # bishop
 				occupancy = set_occupancy(index, relevant_bits_count, attack_mask)
 				magic_index = (occupancy * bishop_magic_numbers[sq]) >> np.ulonglong(64 - bishop_relevant_bits[sq])
 				attacks[sq][magic_index] = bishop_attacks_with_occupancy(sq, occupancy)
@@ -281,8 +281,8 @@ def init_sliders(attacks, bish):
 	return attacks
 
 # sliders
-bishop_attacks = init_sliders(np.empty((64, 512), dtype=np.ulonglong), bish=True)
-rook_attacks = init_sliders(np.empty((64, 4096), dtype=np.ulonglong), bish=False)
+bishop_attacks = init_sliders(np.empty((64, 512), dtype=np.ulonglong), is_bishop=True)
+rook_attacks = init_sliders(np.empty((64, 4096), dtype=np.ulonglong), is_bishop=False)
 
 # leapers
 pawn_attacks = np.fromiter((mask_pawn_attacks(sq, color) for color in [white, black] for sq in range(64)), dtype=np.ulonglong)
@@ -290,22 +290,22 @@ pawn_attacks.shape = (2, 64)
 knight_attacks = np.fromiter((mask_knight_attacks(sq) for sq in range(64)), dtype=np.ulonglong)
 king_attacks = np.fromiter((mask_king_attacks(sq) for sq in range(64)), dtype=np.ulonglong)
 
-def get_bishop_attacks(sq, occ):
-	if sq == 63:
-		return bishop_attacks_with_occupancy(sq, occ)
-	occ &= bishop_masks[sq]
-	occ *= bishop_magic_numbers[sq]
-	occ >>= np.ulonglong(64 - bishop_relevant_bits[sq])
-	return bishop_attacks[sq][occ]
+def get_bishop_attacks(square: int, occupancy: np.ulonglong):
+	if square == 63:
+		return bishop_attacks_with_occupancy(square, occupancy)
+	occupancy &= bishop_masks[square]
+	occupancy *= bishop_magic_numbers[square]
+	occupancy >>= np.ulonglong(64 - bishop_relevant_bits[square])
+	return bishop_attacks[square][occupancy]
 
-def get_rook_attacks(sq, occ):
-	occ &= rook_masks[sq]
-	occ *= rook_magic_numbers[sq]
-	occ >>= np.ulonglong(64 - rook_relevant_bits[sq])
-	return rook_attacks[sq][occ]
+def get_rook_attacks(square: int, occupancy: np.ulonglong):
+	occupancy &= rook_masks[square]
+	occupancy *= rook_magic_numbers[square]
+	occupancy >>= np.ulonglong(64 - rook_relevant_bits[square])
+	return rook_attacks[square][occupancy]
 
-def get_queen_attacks(sq, occ):
-	return get_rook_attacks(sq, occ) | get_bishop_attacks(sq, occ)
+def get_queen_attacks(square: int, occupancy: np.ulonglong):
+	return get_rook_attacks(square, occupancy) | get_bishop_attacks(square, occupancy)
 
 def get_attacks(piece, start_square, board, color):
     if piece == knight:
@@ -319,14 +319,14 @@ def get_attacks(piece, start_square, board, color):
     elif piece == king:
         return king_attacks[start_square] & ~board.occupancy[color]
 
-def is_square_attacked(pos, sq, color):
+def is_square_attacked(board_state, square, color):
     """return True if the square is attacked by the given color else False"""
-    opp = color ^ 1
-    if pawn_attacks[opp][sq] & pos.pieces_bitboard[color][pawn] \
-            or get_bishop_attacks(sq, pos.occupancy[both]) & pos.pieces_bitboard[color][bishop] \
-            or knight_attacks[sq] & pos.pieces_bitboard[color][knight] \
-            or get_rook_attacks(sq, pos.occupancy[both]) & pos.pieces_bitboard[color][rook] \
-            or get_queen_attacks(sq, pos.occupancy[both]) & pos.pieces_bitboard[color][queen] \
-            or king_attacks[sq] & pos.pieces_bitboard[color][king]:
+    opponent_color = color ^ 1
+    if pawn_attacks[opponent_color][square] & board_state.pieces_bitboard[color][pawn] \
+            or get_bishop_attacks(square, board_state.occupancy[both]) & board_state.pieces_bitboard[color][bishop] \
+            or knight_attacks[square] & board_state.pieces_bitboard[color][knight] \
+            or get_rook_attacks(square, board_state.occupancy[both]) & board_state.pieces_bitboard[color][rook] \
+            or get_queen_attacks(square, board_state.occupancy[both]) & board_state.pieces_bitboard[color][queen] \
+            or king_attacks[square] & board_state.pieces_bitboard[color][king]:
         return True
     return False

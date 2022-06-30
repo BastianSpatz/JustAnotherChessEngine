@@ -5,18 +5,15 @@ import chess
 import sys
 
 
-def perft_main(board, depth):
+def perft(board_state, depth):
 	if depth == 0:
 		return 1
-
-
-	moves = generate_legal_moves(board)
+	moves = generate_pseudo_legal_moves(board_state)
 	nodes = 0
 	for move in moves:
-		new_board = make_move(board, move)
-		if new_board is not None:
-			n = perft_main(new_board, depth - 1)
-			nodes += n
+		new_board_state = make_move(board_state, move)
+		if new_board_state is not None:
+			nodes += perft(new_board_state, depth - 1)
 	return nodes
 
 def debug_perft(board, depth, b, print_info=False):
